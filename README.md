@@ -1,20 +1,21 @@
-# aws4
+# AWS4
 
 **Hello,**
 
-Clarification: To avoid mentioning the name of the company or `test`, an arbitrary name of `aws4` was chosen to name different resources. It bears no meaning and serves only as a placeholder.
+Just to clarify: The name `aws4` was chosen as an arbitrary placeholder to name different resources, avoiding any mention of the company or `test`. It bears no meaning beyond this purpose.
 
-## 0. ENV PREPARATION
+## 0. Environment Preparation
 
-To prepare the environment I did the following (manually):
-1. register a fresh github account
-2. create new git repository
-3. install awscli & terraform
-4. register a fresh AWS account
-5. create an AWS user & group
-6. attach group to user
-7. generate access key
-8. configure awscli
-9. copy `policy1.json` to https://us-east-1.console.aws.amazon.com/iamv2/home?region=eu-north-1#/policies/create
-10. attach policy to the group
-11. init terraform with AWS provider
+To prepare the environment, I performed the following steps manually:
+1. Registered a fresh GitHub account.
+2. Created a new Git repository.
+3. Installed AWS CLI and Terraform.
+4. Registered a fresh AWS account.
+5. Created an AWS user and group.
+6. Attached the group to the user.
+7. Generated an access key.
+8. Configured AWS CLI.
+9. Using `policy1.json`, created a policy named `policy1` in the AWS Console.
+10. Attached the policy to the group.
+11. Initialized Terraform with the AWS provider.
+
