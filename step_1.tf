@@ -7,13 +7,6 @@ resource "aws_s3_bucket" "aws4-bucket4" {
   bucket = "aws4-bucket4"
 }
 
-resource "aws_s3_bucket_versioning" "aws4-bucket4-versioning" {
-  bucket = aws_s3_bucket.aws4-bucket4.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
 resource "aws_s3_bucket_server_side_encryption_configuration" "sse_config" {
   bucket = aws_s3_bucket.aws4-bucket4.id
 
