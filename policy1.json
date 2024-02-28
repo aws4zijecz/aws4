@@ -40,6 +40,25 @@
                 "kms:ScheduleKeyDeletion"
             ],
             "Resource": "*"
+        },
+        {
+            "Sid": "AllowIAMOperations",
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreatePolicy",
+                "iam:CreateRole",
+                "iam:GetRole",
+                "iam:ListRolePolicies",
+                "iam:ListAttachedRolePolicies",
+                "iam:ListInstanceProfilesForRole",
+                "iam:GetPolicy",
+                "iam:GetPolicyVersion",
+                "iam:ListPolicyVersions",
+                "iam:DeleteRole",
+                "iam:DeletePolicy",
+                "iam:AttachRolePolicy"
+            ],
+            "Resource": "*"
         }
     ]
 }
