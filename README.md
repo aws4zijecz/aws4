@@ -30,3 +30,21 @@ Three resources are needed for this operation:
 2. **The S3 Bucket:** This is the storage container where the data will be stored. It is created and managed by Amazon S3.
 
 3. **Server-side Encryption Configuration:** This configuration applies the KMS encryption using the key from step 1 to the bucket from step 2. It ensures that all data stored in the bucket is automatically encrypted using the specified KMS key.
+
+## 2. Synchronizing the Dataset to the S3 Bucket
+
+After setting up the S3 bucket with KMS encryption, the next task is to populate it with data. For this purpose, a Bash script named `step_2.sync_dataset.bash` is used to download a public CSV dataset from NY.gov and upload it to the AWS S3 bucket only if the local copy is newer than the one already present in the bucket.
+
+The script performs the following functions:
+- Downloads the dataset from a specified URL.
+- Checks if the downloaded file is newer than the one in the S3 bucket by comparing timestamps.
+- Uploads the file to the S3 bucket if the local file is newer, setting custom metadata for the last modified time.
+- Cleans up any temporary files created during the process.
+
+### Usage
+
+To execute the script, run the following command in your terminal:
+
+```bash
+./step_2.sync_dataset.bash
+```
