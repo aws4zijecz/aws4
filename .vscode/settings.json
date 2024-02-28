@@ -1,0 +1,7 @@
+// In a real situation outside the scope of the test, I'd place .vscode directory into .gitignore,
+// depending on team coding standards.
+{
+    "files.associations": {
+        "*.tpl": "json"
+    }
+}
