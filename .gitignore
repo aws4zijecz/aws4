@@ -3,3 +3,6 @@ terraform.tfstate
 terraform.tfstate.backup
 .terraform.tfstate.lock.info
 dataset.csv
+selfsigned.crt
+selfsigned.csr
+selfsigned.key
