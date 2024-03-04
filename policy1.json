@@ -5,67 +5,104 @@
             "Sid": "AllowStep5Operations",
             "Effect": "Allow",
             "Action": [
-                "ec2:AssociateRouteTable",
-                "ec2:AttachInternetGateway",
-                "ec2:AuthorizeSecurityGroupEgress",
-                "ec2:AuthorizeSecurityGroupIngress",
-                "ec2:CreateInternetGateway",
-                "ec2:CreateRoute",
-                "ec2:CreateRouteTable",
-                "ec2:CreateSecurityGroup",
-                "ec2:CreateSubnet",
-                "ec2:CreateVpc",
-                "ec2:DeleteInternetGateway",
-                "ec2:DeleteRouteTable",
-                "ec2:DeleteSecurityGroup",
-                "ec2:DeleteSubnet",
-                "ec2:DeleteVpc",
-                "ec2:DisassociateRouteTable",
-                "ec2:ModifySubnetAttribute",
-                "ec2:ModifyVpcAttribute",
-                "ec2:RevokeSecurityGroupEgress",
-                "ecs:CreateCluster",
+                "ec2:*",
                 "ecs:CreateService",
                 "ecs:DeleteCluster",
                 "ecs:DeregisterTaskDefinition",
                 "ecs:RegisterTaskDefinition",
                 "elasticloadbalancing:CreateTargetGroup",
                 "elasticloadbalancing:DeleteTargetGroup",
-                "elasticloadbalancing:ModifyTargetGroupAttributes"
+                "elasticloadbalancing:ModifyTargetGroupAttributes",
+                "elasticloadbalancing:CreateLoadBalancer",
+                "elasticloadbalancing:DeleteLoadBalancer",
+                "elasticloadbalancing:CreateListener",
+                "elasticloadbalancing:DeleteListener",
+                "elasticloadbalancing:ModifyListener",
+                "ecs:UpdateService",
+                "ecs:DeleteService",
+                "elasticloadbalancing:RegisterTargets",
+                "logs:FilterLogEvents",
+                "logs:CreateLogGroup",
+                "logs:DeleteLogGroup",
+                "logs:PutRetentionPolicy",
+                "logs:DeleteRetentionPolicy",
+                "logs:ListTagsLogGroup",
+                "logs:TagResource",
+                "application-autoscaling:RegisterScalableTarget",
+                "application-autoscaling:ListTagsForResource",
+                "application-autoscaling:DeregisterScalableTarget",
+                "application-autoscaling:PutScalingPolicy",
+                "application-autoscaling:DeleteScalingPolicy",
+                "servicediscovery:CreateHttpNamespace",
+                "servicediscovery:UpdateHttpNamespace",
+                "servicediscovery:GetOperation",
+                "ecs:PutClusterCapacityProviders",
+                "elasticloadbalancing:AddTags",
+                "elasticloadbalancing:RemoveTags",
+                "elasticloadbalancing:ModifyLoadBalancerAttributes",
+                "logs:TagLogGroup",
+                "logs:UntagLogGroup",
+                "servicediscovery:TagResource",
+                "servicediscovery:UntagResource",
+                "ecs:TagResource",
+                "ecs:UntagResource",
+                "ecs:ListTagsForResource",
+                "servicediscovery:GetNamespace",
+                "servicediscovery:DeleteNamespace",
+                "servicediscovery:ListTagsForResource",
+                "servicediscovery:ListNamespaces",
+                "application-autoscaling:TagResource",
+                "application-autoscaling:UntagResource",
+                "ecs:ExecuteCommand",
+                "ssmmessages:*",
+                "elasticloadbalancing:ModifyTargetGroup",
+                "athena:*",
+                "glue:*"
             ],
             "Resource": [
                 "arn:aws:ec2:eu-north-1:637423491198:*",
                 "arn:aws:ecs:eu-north-1:637423491198:*",
-                "arn:aws:elasticloadbalancing:eu-north-1:637423491198:*"
+                "arn:aws:elasticloadbalancing:eu-north-1:637423491198:*",
+                "arn:aws:logs:eu-north-1:637423491198:*",
+                "arn:aws:application-autoscaling:eu-north-1:637423491198:scalable-target/*",
+                "arn:aws:servicediscovery:eu-north-1:637423491198:*/*",
+                "arn:aws:servicediscovery:eu-north-1:637423491198:*",
+                "arn:aws:ssmmessages:eu-north-1:637423491198:*",
+                "arn:aws:ec2:eu-north-1::image/ami-02d0a1cbe2c3e5ae4",
+                "arn:aws:athena:eu-north-1:637423491198:*",
+                "arn:aws:glue:eu-north-1:637423491198:*"
             ]
         },
         {
             "Sid": "AllowTerraformToDescribe",
             "Effect": "Allow",
             "Action": [
-                "ec2:DescribeAvailabilityZones",
-                "ec2:DescribeInternetGateways",
-                "ec2:DescribeNetworkInterfaces",
-                "ec2:DescribeRouteTables",
-                "ec2:DescribeSecurityGroups",
-                "ec2:DescribeSubnets",
-                "ec2:DescribeVpcAttribute",
-                "ec2:DescribeVpcs",
-                "ecs:DescribeClusters",
-                "ecs:DescribeTaskDefinition",
-                "elasticloadbalancing:DescribeLoadBalancers",
-                "elasticloadbalancing:DescribeTags",
-                "elasticloadbalancing:DescribeTargetGroupAttributes",
-                "elasticloadbalancing:DescribeTargetGroups",
-                "kms:DescribeKey"
+                "ec2:Describe*",
+                "ecs:Describe*",
+                "elasticloadbalancing:Describe*",
+                "kms:Describe*",
+                "logs:Describe*",
+                "application-autoscaling:Describe*"
             ],
             "Resource": "*"
         },
         {
-            "Sid": "AllowPassEcsExecRole",
+            "Sid": "AllowLimitedRoleOperations",
             "Effect": "Allow",
-            "Action": "iam:PassRole",
-            "Resource": "arn:aws:iam::637423491198:role/ecs_execution_role"
+            "Action": [
+                "iam:PassRole",
+                "iam:CreateServiceLinkedRole",
+                "iam:DeleteServiceLinkedRole",
+                "iam:ListEntitiesForPolicy"
+            ],
+            "Resource": [
+                "arn:aws:iam::637423491198:role/ecs_execution_role",
+                "arn:aws:iam::637423491198:role/AthenaQueryRole",
+                "arn:aws:iam::637423491198:role/aws-service-role/elasticloadbalancing.amazonaws.com/AWSServiceRoleForElasticLoadBalancing",
+                "arn:aws:iam::637423491198:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS",
+                "arn:aws:iam::637423491198:role/superset-*",
+                "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+            ]
         },
         {
             "Sid": "AllowS3BucketOperations",
@@ -89,7 +126,9 @@
                 "s3:ListBucket",
                 "s3:PutBucketPolicy",
                 "s3:PutEncryptionConfiguration",
-                "s3:PutObject"
+                "s3:PutObject",
+                "s3:GetObjectTagging",
+                "s3:DeleteObject"
             ],
             "Resource": [
                 "arn:aws:s3:::aws4-bucket4",
@@ -108,6 +147,14 @@
                 "kms:ScheduleKeyDeletion"
             ],
             "Resource": "arn:aws:kms:eu-north-1:637423491198:*"
+        },
+        {
+            "Sid": "AllowKMSCreateKey",
+            "Effect": "Allow",
+            "Action": [
+                "kms:CreateKey"
+            ],
+            "Resource": "*"
         },
         {
             "Sid": "AllowIAMOperations",
@@ -133,9 +180,38 @@
                 "iam:CreateAccessKey",
                 "iam:GetUserPolicy",
                 "iam:ListAccessKeys",
-                "iam:DeleteUserPolicy"
+                "iam:DeleteUserPolicy",
+                "iam:DetachRolePolicy",
+                "iam:GetServiceLinkedRoleDeletionStatus",
+                "iam:UpdateAssumeRolePolicy",
+                "iam:PutRolePolicy",
+                "iam:GetRolePolicy",
+                "iam:DeleteRolePolicy",
+                "iam:CreatePolicyVersion",
+                "iam:DeletePolicyVersion",
+                "iam:SetDefaultPolicyVersion",
+                "iam:TagRole",
+                "iam:UntagRole",
+                "iam:UntagPolicy",
+                "iam:TagPolicy",
+                "iam:DeleteAccessKey"
             ],
             "Resource": "arn:aws:iam::637423491198:*"
+        },
+        {
+            "Sid": "AllowTerraform",
+            "Effect": "Allow",
+            "Action": [
+                "ecs:DeregisterTaskDefinition",
+                "ecs:CreateCluster"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "AllowImportCertificate",
+            "Effect": "Allow",
+            "Action": "acm:ImportCertificate",
+            "Resource": "arn:aws:acm:eu-north-1:637423491198:certificate/*"
         }
     ]
 }
