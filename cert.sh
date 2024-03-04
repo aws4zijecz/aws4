@@ -13,4 +13,4 @@ openssl x509 -req -days 365 -in selfsigned.csr -signkey selfsigned.key -out self
 
 # Import the self-signed certificate into AWS Certificate Manager
 # Write ARN to 'certificate.json'
-aws acm import-certificate --certificate fileb://selfsigned.crt --private-key fileb://selfsigned.key --region eu-north-1 >certificate.json
+aws acm import-certificate --certificate fileb://selfsigned.crt --private-key fileb://selfsigned.key --region eu-north-1 | tee certificate.json
