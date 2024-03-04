@@ -16,3 +16,12 @@ resource "aws_cloudformation_stack" "superset_cf" {
   }
   template_url = "https://aws4-bucket5.s3.eu-north-1.amazonaws.com/formation/superset-entrypoint-existing-vpc.template.yaml"
 }
+
+data "aws_cloudformation_stack" "stack" {
+  name = "superset-cf"
+}
+
+output "SupersetConsole" {
+  description = "URL of the Superset console"
+  value       = data.aws_cloudformation_stack.stack.outputs["SupersetConsole443"]
+}
