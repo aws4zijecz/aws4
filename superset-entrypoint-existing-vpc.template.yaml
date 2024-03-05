@@ -88,7 +88,54 @@ Parameters:
     Type: String
     Default: "supersetOnAWS"
     Description: Name of the Amazon ECS cluster.
+  SelfSignedCertificate:
+    Type: String
+    Description: The ARN of the self-signed certificate
+    Default: ""
 Resources:
+  LoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group for load balancer
+      VpcId: !Ref Vpc
+  SupersetHTTPSListener:
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn:
+            Ref: MyALBTargetGroup
+      Certificates:
+        - CertificateArn:
+            Ref: SelfSignedCertificate # Reference to the self-signed certificate
+      LoadBalancerArn:
+        Ref: LoadBalancer
+      Port: 443
+      Protocol: HTTPS
+    Type: AWS::ElasticLoadBalancingV2::Listener
+  LoadBalancerSecurityGroupIngressHttps:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref LoadBalancerSecurityGroup
+      CidrIp: 0.0.0.0/0
+      Description: Enable HTTPS access
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+  MyALBTargetGroup:
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+    Properties:
+      Name: MyALBTargetGroup
+      Port: 8088
+      Protocol: HTTP
+      TargetType: ip
+      VpcId: !Ref Vpc
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: "/health"
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 3
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
   SupersetSecretKey:
     Type: "AWS::SecretsManager::Secret"
     Properties:
@@ -442,6 +489,8 @@ Resources:
     Type: AWS::EC2::SecurityGroupIngress
   LoadBalancer:
     Properties:
+      SecurityGroups:
+        - Ref: LoadBalancerSecurityGroup
       LoadBalancerAttributes:
         - Key: load_balancing.cross_zone.enabled
           Value: "true"
@@ -452,7 +501,7 @@ Resources:
       Tags:
         - Key: com.docker.compose.project
           Value: !Ref ClusterName
-      Type: network
+      Type: application
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
   LogGroup:
     Properties:
@@ -670,12 +719,13 @@ Resources:
     Type: AWS::IAM::Role
   SupersetService:
     DependsOn:
-      - SupersetTCP8088Listener
+      # - SupersetTCP8088Listener
       - DbService
       - RedisService
       - SupersethomeNFSMountTargetOnSubnetB
       - SupersethomeNFSMountTargetOnSubnetA
     Properties:
+      HealthCheckGracePeriodSeconds: 0
       Cluster:
         Fn::GetAtt:
           - Cluster
@@ -691,7 +741,7 @@ Resources:
         - ContainerName: superset
           ContainerPort: 8088
           TargetGroupArn:
-            Ref: SupersetTCP8088TargetGroup
+            Ref: MyALBTargetGroup
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
@@ -730,29 +780,29 @@ Resources:
       NamespaceId:
         Ref: CloudMap
     Type: AWS::ServiceDiscovery::Service
-  SupersetTCP8088Listener:
-    Properties:
-      DefaultActions:
-        - ForwardConfig:
-            TargetGroups:
-              - TargetGroupArn:
-                  Ref: SupersetTCP8088TargetGroup
-          Type: forward
-      LoadBalancerArn:
-        Ref: LoadBalancer
-      Port: 8088
-      Protocol: TCP
-    Type: AWS::ElasticLoadBalancingV2::Listener
-  SupersetTCP8088TargetGroup:
-    Properties:
-      Port: 8088
-      Protocol: TCP
-      Tags:
-        - Key: com.docker.compose.project
-          Value: !Ref ClusterName
-      TargetType: ip
-      VpcId: !Ref Vpc
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+  # SupersetTCP8088Listener:
+  #   Properties:
+  #     DefaultActions:
+  #       - ForwardConfig:
+  #           TargetGroups:
+  #             - TargetGroupArn:
+  #                 Ref: SupersetTCP8088TargetGroup
+  #         Type: forward
+  #     LoadBalancerArn:
+  #       Ref: LoadBalancer
+  #     Port: 8088
+  #     Protocol: HTTP
+  #   Type: AWS::ElasticLoadBalancingV2::Listener
+  # SupersetTCP8088TargetGroup:
+  #   Properties:
+  #     Port: 8088
+  #     Protocol: HTTP
+  #     Tags:
+  #       - Key: com.docker.compose.project
+  #         Value: !Ref ClusterName
+  #     TargetType: ip
+  #     VpcId: !Ref Vpc
+  #   Type: AWS::ElasticLoadBalancingV2::TargetGroup
   SupersetTaskDefinition:
     Properties:
       ContainerDefinitions:
@@ -832,6 +882,9 @@ Resources:
               Value: !Sub "{{resolve:secretsmanager:${SupersetSecretKey}::secretkey}}"
           Essential: true
           Image: public.ecr.aws/p9r6s5p7/superset:latest
+          HealthCheck:
+            Command:
+              ["CMD-SHELL", "curl -f http://localhost:8088/health || exit 1"]
           LinuxParameters: {}
           LogConfiguration:
             LogDriver: awslogs
@@ -850,10 +903,10 @@ Resources:
               HostPort: 8088
               Protocol: tcp
           User: root
-      Cpu: "4096"
+      Cpu: "256"
       ExecutionRoleArn: !GetAtt SupersetTaskExecutionRole.Arn
       Family: !Sub ${ClusterName}-superset
-      Memory: "16384"
+      Memory: "512"
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
@@ -1138,10 +1191,10 @@ Resources:
                 Ref: AWS::Region
               awslogs-stream-prefix: !Ref ClusterName
           Name: superset-init-cleanup
-      Cpu: "512"
+      Cpu: "256"
       ExecutionRoleArn: !GetAtt SupersetinitTaskExecutionRole.Arn
       Family: !Sub ${ClusterName}-superset-init
-      Memory: "1024"
+      Memory: "512"
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
@@ -1361,10 +1414,10 @@ Resources:
             - ContainerPath: /app/superset_home
               SourceVolume: superset_home
           Name: superset-node
-      Cpu: "4096"
+      Cpu: "256"
       ExecutionRoleArn: !GetAtt SupersetnodeTaskExecutionRole.Arn
       Family: !Sub ${ClusterName}-superset-node
-      Memory: "8192"
+      Memory: "512"
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
@@ -1584,10 +1637,10 @@ Resources:
               SourceVolume: superset_home
           Name: superset-worker
           User: root
-      Cpu: "4096"
+      Cpu: "256"
       ExecutionRoleArn: !GetAtt SupersetworkerTaskExecutionRole.Arn
       Family: !Sub ${ClusterName}-superset-worker
-      Memory: "16384"
+      Memory: "512"
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
@@ -1807,10 +1860,10 @@ Resources:
               SourceVolume: superset_home
           Name: superset-worker-beat
           User: root
-      Cpu: "4096"
+      Cpu: "256"
       ExecutionRoleArn: !GetAtt SupersetworkerbeatTaskExecutionRole.Arn
       Family: !Sub ${ClusterName}-superset-worker-beat
-      Memory: "16384"
+      Memory: "512"
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
@@ -2157,7 +2210,7 @@ Resources:
                           "metrics": [
                               [ "AWS/NetworkELB", "HealthyHostCount", "TargetGroup", "
           - !GetAtt
-            - SupersetTCP8088TargetGroup
+            - MyALBTargetGroup
             - TargetGroupFullName
           - '", "AvailabilityZone", "'
           - !Select
@@ -2231,9 +2284,9 @@ Resources:
                 ]
             }
 Outputs:
-  SupersetConsole:
-    Description: URL of Superset console.
+  SupersetConsole443:
+    Description: URL of the Superset console.
     Value:
       Fn::Sub:
-        - ${url}:${port}
-        - { url: !GetAtt LoadBalancer.DNSName, port: "8088" }
+        - "https://${url}"
+        - url: !GetAtt LoadBalancer.DNSName
