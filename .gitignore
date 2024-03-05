@@ -6,3 +6,4 @@ dataset.csv
 selfsigned.crt
 selfsigned.csr
 selfsigned.key
+*.tfplan
