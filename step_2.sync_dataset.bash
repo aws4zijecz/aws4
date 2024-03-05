@@ -90,12 +90,16 @@ function check_timestamps() {
 # Function to split winning numbers to separate columns
 function process_winning_numbers() {
     echo -n "Processing update..."
-    # Change format of the Draw date to the standard Athena format 'yyyy-mm-dd'
-    # Split numbers to columns by replacing spaces
-    # Fix for Multiplier=1
-    # Fix for numbers with a leading zero
+    # sed commaand below does:
+    # 1. Change format of the Draw date to the standard Athena format 'yyyy-mm-dd'
+    # 2. Split numbers to columns by replacing spaces
+    # 3. Fix for Multiplier=1 (replace empty records)
+    # 4. Fix for numbers with a leading zero
     tail -n+2 $raw_file | while read line; do
-        $verbose && ((i = i + 1)) && ((i % 100)) || echo -n .
+        if $verbose; then
+            ((i = i + 1))
+            ((i % 100)) || echo -n . # when running verbose, print a dot every 100 records processed
+        fi
         echo "$line" |
             sed 's@^\(..\)/\(..\)/\(....\)@\3-\1-\2@;s/ /,/g;s/,$/,1/;s/,0\([1-9]\)/,\1/g' >>$tmp_file
     done || cleanup 4 "Can not write to '$tmp_file'."
