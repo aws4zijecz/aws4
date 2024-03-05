@@ -18,7 +18,8 @@ To prepare the environment, I performed the following steps manually:
 8. Configured AWS CLI.
 9. Using `policy1.json`, created a policy named `policy1` in the AWS Console.
 10. Attached the policy to the group.
-11. Initialized Terraform with the AWS provider.
+11. Do the same for `policy2.json`, this policy is solely for CloudFormation and the Apache Partner Program
+12. Initialized Terraform with the AWS provider.
 
 ## 1. Defining an S3 Bucket Using KMS Encryption
 >**TASK:** _Define an S3 bucket using KMS encryption._
