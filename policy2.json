@@ -1,0 +1,151 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloudformation:CreateStack",
+                "cloudformation:DeleteStack",
+                "cloudformation:DescribeStackEvents",
+                "cloudformation:DescribeStackResource",
+                "cloudformation:DescribeStackResources",
+                "cloudformation:DescribeStacks",
+                "cloudformation:GetTemplate",
+                "cloudformation:ListStackResources",
+                "cloudformation:UpdateStack",
+                "cloudformation:ListExports",
+                "cloudformation:ListImports"
+            ],
+            "Resource": [
+                "arn:aws:cloudformation:eu-north-1:637423491198:stack/superset-cf/*"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "aws:RequestedRegion": "eu-north-1"
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:Describe*",
+                "ec2:GetConsoleOutput",
+                "elasticloadbalancing:*",
+                "autoscaling:Describe*",
+                "cloudwatch:*",
+                "sns:*",
+                "iam:GetPolicy",
+                "iam:GetPolicyVersion",
+                "iam:GetRole",
+                "iam:GetRolePolicy",
+                "iam:ListAttachedRolePolicies",
+                "iam:ListRolePolicies",
+                "iam:ListRoles",
+                "ssm:GetParameters"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "aws:RequestedRegion": "eu-north-1"
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateServiceLinkedRole"
+            ],
+            "Resource": "arn:aws:iam::*:role/aws-service-role/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": [
+                "arn:aws:logs:eu-north-1:637423491198:log-group:/aws/cloudformation/superset-cf:*"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "aws:RequestedRegion": "eu-north-1"
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:GetRepositoryPolicy",
+                "ecr:DescribeRepositories",
+                "ecr:ListImages",
+                "ecr:DescribeImages",
+                "ecr:BatchGetImage",
+                "ecr:GetLifecyclePolicy",
+                "ecr:GetLifecyclePolicyPreview",
+                "ecr:ListTagsForResource",
+                "ecr:DescribeImageScanFindings"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:CreateSecret"
+            ],
+            "Resource": "arn:aws:secretsmanager:eu-north-1:637423491198:secret:superset-cf/secretkey-*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*"
+            ],
+            "Resource": [
+                "arn:aws:kms:eu-north-1:637423491198:key/*"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "aws:RequestedRegion": "eu-north-1"
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "servicecatalog:ListAcceptedPortfolioShares",
+                "servicecatalog:ListPortfolios",
+                "servicecatalog:ListPrincipalsForPortfolio",
+                "servicecatalog:ListResourcesForTagOption",
+                "servicecatalog:ListTagOptions",
+                "servicecatalog:SearchProductsAsAdmin"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "elasticfilesystem:*",
+                "secretsmanager:*",
+                "route53:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
