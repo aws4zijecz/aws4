@@ -11,11 +11,14 @@
                 "athena:ListNamedQueries",
                 "athena:ListWorkGroups"
             ],
-            "Resource": "*"
+            "Resource": [
+                "arn:aws:athena:${region}:${account_id}:workgroup/${workgroup_name}"
+            ]
         },
         {
             "Effect": "Allow",
             "Action": [
+                "s3:GetBucketLocation",
                 "s3:GetObject",
                 "s3:ListBucket",
                 "s3:PutObject",
@@ -28,8 +31,11 @@
         },
         {
             "Effect": "Allow",
-            "Action": "glue:GetTable",
-            "Resource": "*"
+            "Action": [
+                "glue:GetTable",
+                "glue:GetDatabases"
+            ],
+            "Resource": "arn:aws:glue:${region}:${account_id}:catalog"
         },
         {
             "Effect": "Allow",
