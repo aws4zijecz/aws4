@@ -47,9 +47,15 @@ data "aws_iam_policy_document" "superset_athena_s3_query_policy" {
   }
   statement {
     actions = [
+      # WIP: Superset throws errors that are not logged in CloudTrail
       "athena:GetQueryExecution",
       "athena:List*",
-      "glue:GetDatabases",
+      "athena:Get*",
+      "athena:*",
+      "glue:List*",
+      "glue:Get*",
+      "glue:*",
+      "s3:*",
       "s3:GetBucketLocation",
     ]
     resources = [
