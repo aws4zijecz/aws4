@@ -1,7 +1,6 @@
 # Define the IAM user that will assume the role
 resource "aws_iam_user" "aws5" {
   name = "aws5"
-  #   path = "/system/"
 }
 
 # Attach a policy to the IAM user that allows assuming the Athena query role
