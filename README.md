@@ -1,4 +1,3 @@
-
 # AWS4
 
 **Hello,**
@@ -36,7 +35,7 @@ Three resources are needed for this operation:
 
 ## 2. Synchronizing the Dataset to the S3 Bucket
 
->**TASK:** _Load public CSV dataset into the created S3 bucket._
+>**TASK:** _Load a public CSV dataset into the created S3 bucket._
 
 After setting up the S3 bucket with KMS encryption, the next task is to populate it with data. For this purpose, a Bash script named `step_2.sync_dataset.bash` is used to download a public CSV dataset from NY.gov and upload it to the AWS S3 bucket only if the local copy is newer than the one already present in the bucket.
 
@@ -57,9 +56,9 @@ To execute the script, run the following command in your terminal:
 
 #### Options:
 
-- `-v`: (optional) turns on verbose output
-- `-f`: (optional) forces upload disregarding timestamps
-- `-h`: (optional) prints script usage and exits
+- `-v`: (optional) turns on verbose output.
+- `-f`: (optional) forces upload disregarding timestamps.
+- `-h`: (optional) prints script usage and exits.
 
 ## 3. Create an IAM Role for Athena
 
@@ -69,16 +68,13 @@ To execute the script, run the following command in your terminal:
 
 All AWS resources for this part are in `step_3.tf`:
 
-- **"aws_iam_role" "athena_query_role"** - AWS Role for Athena
-- **"aws_athena_workgroup" "athena_workgroup"** - Athena Workgroup
-- **"aws_iam_policy" "athena_s3_query_policy"** - definition of Policy
-- **"aws_iam_role_policy_attachment" "athena_s3_query_attachment"** - attaching the Policy to the Role
-
-- **"aws_glue_catalog_database" "athena_database"** - creation of a Glue Catalog
-
-- **"aws_glue_catalog_table" "athena_table"** - Glue Catalog Table importing the CSV stored in S3 in Step 2
-
-- **"aws_athena_named_query" "lottery_data_view"** - creation of view to map `draw_date` to its actual date instead of type string (see: _Deliverable 5.b.iv_)
+- **"aws_iam_role" "athena_query_role"** - AWS Role for Athena.
+- **"aws_athena_workgroup" "athena_workgroup"** - Athena Workgroup.
+- **"aws_iam_policy" "athena_s3_query_policy"** - definition of Policy.
+- **"aws_iam_role_policy_attachment" "athena_s3_query_attachment"** - attaching the Policy to the Role.
+- **"aws_glue_catalog_database" "athena_database"** - creation of a Glue Catalog Database.
+- **"aws_glue_catalog_table" "athena_table"** - Glue Catalog Table importing the CSV stored in S3 in Step 2.
+- **"aws_athena_named_query" "lottery_data_view"** - creation of a view to map `draw_date` to its actual date instead of type string (see: _Deliverable 5.b.iv_).
 To create this view, navigate to <https://eu-north-1.console.aws.amazon.com/athena/home?region=eu-north-1#/query-editor/saved-queries> after the deployment is done and run this query from the console.
 
 ## 4. AWS Access Key
@@ -87,9 +83,9 @@ To create this view, navigate to <https://eu-north-1.console.aws.amazon.com/athe
 
 Only three resources are needed for this:
 
-- **"aws_iam_user" "aws5"** - The user
-- **"aws_iam_user_policy" "user_assume_role_policy"** - Allow role assumption
-- **"aws_iam_access_key" "user_access_key"** - Create a key for the user
+- **"aws_iam_user" "aws5"** - The user.
+- **"aws_iam_user_policy" "user_assume_role_policy"** - Allow role assumption.
+- **"aws_iam_access_key" "user_access_key"** - Create a key for the user.
 
 This also creates two outputs `aws5_key_id` and `aws5_key_secret`. These are sensitive outputs so to access them, run the following commands:
 
@@ -170,24 +166,25 @@ For Git, this file can be found together with the rest of the project at: <https
 
 ## 5.a Design Decisions
 
-Many of the design decisions weren't up to me, but did align with what I would do—for example, using Terraform and Git.
+Many of the design decisions were predetermined, but they did align with my preferences. For example, using Terraform and Git.
 
 ### Decisions:
 
 - Use this `README.md` for the Deliverables, to make use of Markdown.
+- Use of a single Git branch - features were added chronologically by only one developer.
 - Use new AWS and Git accounts so they both might easily become Deliverables, if requested.
 - Use `policy1.json` instead of a blank `"*"` admin policy to show that even an admin account can be limited for the purposes of its tasks.
 
 ### Task Overview:
 
 1. Create a KMS encrypted S3 bucket - straightforward creation in Terraform.
-2. Load CSV to S3 - I decided to write a BASH script for this mainly to present my scripting skills.
+2. Load CSV to S3 - I decided to write a Bash script for this mainly to present my scripting skills.
 3. and 4. Create IAM resources - straightforward creation in Terraform.
 5. Superset Deployment - here were several paths I could have chosen:
     - EKS - considered due to my familiarity with OKE.
     - Pure Terraform - considered and tried for granular control over resources.
-    - Public Terraform modules - used for VPC creation as a PoC, otherwise discarded for unsupported `entryPoint` and poor volume management.
-    - CloudFormation Partner Solution - chosen, but modified to support HTTPS.
+    - Public Terraform modules - used for VPC creation as a Proof of Concept, otherwise discarded for unsupported `entryPoint` and poor volume management.
+    - CloudFormation Partner Solution - chosen but modified to support HTTPS.
 
 ## 5.b SQL Queries
 
@@ -253,17 +250,10 @@ FROM "athena_database"."lottery_data"
 ### 5.b.iii - Identify the top 5 Mega Ball Numbers
 
 > **NOTE:** This query might return more than 5 numbers if any numbers share the fifth place.
+
+#### Approach 1
+
 ```sql
-SELECT 
-    mega_ball, 
-    COUNT(*) as count
-FROM 
-    lottery_data
-GROUP BY 
-    mega_ball
-ORDER BY
-    count DESC
-LIMIT 5
 WITH frequency AS (
     SELECT 
         mega_ball, 
@@ -282,6 +272,27 @@ WITH frequency AS (
     FROM 
         frequency
     WHERE count>=(SELECT count FROM frequency WHERE rownum=5)
+```
+
+#### Approach 2
+
+```sql
+WITH frequency AS (
+    SELECT 
+        mega_ball, 
+        COUNT(*) as count,
+        RANK() OVER (ORDER BY COUNT(*) DESC) AS rank
+    FROM 
+        lottery_data
+    GROUP BY 
+        mega_ball
+)
+SELECT 
+    mega_ball,
+    count
+FROM 
+    frequency
+WHERE rank <= 5
 ```
 
 ### 5.b.iv - How many of the lotteries were drawn on a weekday vs weekend
@@ -306,8 +317,8 @@ We can prove this by actually mapping `draw_date` to days of the week.
 ```sql
 SELECT 
     SUM(CASE WHEN CAST(extract(dow FROM draw_date) AS integer)
-	    BETWEEN 1 AND 5 THEN 1 ELSE 0 END) AS weekdays,
+        BETWEEN 1 AND 5 THEN 1 ELSE 0 END) AS weekdays,
     SUM(CASE WHEN CAST(extract(dow FROM draw_date) AS integer)
-	    IN (0, 6) THEN 1 ELSE 0 END) AS weekends
+        IN (0, 6) THEN 1 ELSE 0 END) AS weekends
 FROM lottery_data_view;
 ```
